@@ -50,7 +50,7 @@ void randomTest(uint64_t maxLba)
 int main(int argc, const char *argv[])
 {
 
-    if (argc != 3)
+    if (argc != 2)
     {
         printf("Syntax error: ");
         for (int i =0; i< argc; ++i) { printf("%s ", argv[i]); }
