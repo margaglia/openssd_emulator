@@ -134,22 +134,22 @@
 
 
 #define    TRUE        1
-#define    FALSE        0
+#define    FALSE       0
 #define    NULL        0
-#define    OK            TRUE
+#define    OK          TRUE
 #define    FAIL        FALSE
-#define INVALID     0xFFFFFFFF // use ftl_faster
+#define    INVALID     0xFFFFFFFF // use ftl_faster
 #define    INVALID8    ((UINT8) -1)
-#define    INVALID16    ((UINT16) -1)
-#define    INVALID32    ((UINT32) -1)
+#define    INVALID16   ((UINT16) -1)
+#define    INVALID32   ((UINT32) -1)
 
-typedef    unsigned char        BOOL8;
+typedef    unsigned char         BOOL8;
 typedef    unsigned short        BOOL16;
-typedef    unsigned int        BOOL32;
-typedef    unsigned char        UINT8;
+typedef    unsigned int          BOOL32;
+typedef    unsigned char         UINT8;
 typedef    unsigned short        UINT16;
-typedef    unsigned int        UINT32;
-typedef unsigned long long    UINT64;
+typedef    unsigned int          UINT32;
+typedef    unsigned long long    UINT64;
 
 #define MIN(X, Y)                ((X) > (Y) ? (Y) : (X))
 #define MAX(X, Y)                ((X) > (Y) ? (X) : (Y))
