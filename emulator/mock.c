@@ -525,6 +525,8 @@ UINT32 GETREG(UINT32 ADDR)
 
 void writeToOpenSSD(const uint64_t lba, const uint64_t numSectors, void * buffer)
 {
+    assert((lba % SECTORS_PER_PAGE) + numSectors <= SECTORS_PER_PAGE);
+
     uint64_t sectOffset = lba % SECTORS_PER_PAGE;
 
     UINT32 bufAddr = WR_BUF_PTR(g_ftl_write_buf_id) + sectOffset * BYTES_PER_SECTOR;
@@ -536,6 +538,8 @@ void writeToOpenSSD(const uint64_t lba, const uint64_t numSectors, void * buffer
 
 void readFromOpenSSD(const uint64_t lba, const uint64_t numSectors, void * buffer)
 {
+    assert((lba % SECTORS_PER_PAGE) + numSectors <= SECTORS_PER_PAGE);
+
     uint64_t sectOffset = lba % SECTORS_PER_PAGE;
     UINT32 bufAddr = RD_BUF_PTR(g_ftl_read_buf_id) + sectOffset * BYTES_PER_SECTOR;
     UINT32 realAddr = bufAddr - DRAM_BASE;
