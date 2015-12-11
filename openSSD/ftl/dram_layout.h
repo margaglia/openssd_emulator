@@ -19,9 +19,7 @@
 
 #define TEMP_BUF_ADDR                               (HIL_BUF_ADDR + HIL_BUF_BYTES)    // general purpose buffer
 
-#define LOG_BMT_ADDR                                (TEMP_BUF_ADDR + TEMP_BUF_BYTES)
-
-#define END_ADDR                            (LOG_BMT_ADDR + LOG_BMT_BYTES)
+#define END_ADDR                                    (TEMP_BUF_ADDR + TEMP_BUF_BYTES)
 
 //////////////////////////
 // Buffer access macros //

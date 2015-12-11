@@ -12,34 +12,6 @@
 static void sanity_check (void);
 static void format (void);
 
-#define Write_log_bmt(bank, lbn, vblock) write_dram_16 (LOG_BMT_ADDR + ((bank * LOG_BLK_PER_BANK + lbn) * sizeof (UINT16)), vblock)
-#define Read_log_bmt(bank, lbn) read_dram_16 (LOG_BMT_ADDR + ((bank * LOG_BLK_PER_BANK + lbn) * sizeof (UINT16)))
-
-// set log vbn to log block mapping table
-void set_log_vbn (UINT32 const bank, UINT32 const log_lbn, UINT32 const vblock)
-{
-    uart_print("set_log_vbn(bank="); uart_print_int(bank);
-    uart_print(", log_lbn="); uart_print_int(log_lbn);
-    uart_print(", vblock="); uart_print_int(vblock);
-    uart_print(")\r\n");
-    Write_log_bmt(bank, log_lbn, vblock);
-    //write_dram_16 (LOG_BMT_ADDR + ((bank * LOG_BLK_PER_BANK + log_lbn) * sizeof (UINT16)), vblock);
-}
-
-// get log vbn from log block mapping table
-UINT32 get_log_vbn (UINT32 const bank, UINT32 const logLbn)
-{
-    uart_printf("get_log_vbn(bank=%d, log_lbn=%d)", bank, log_lbn);
-    uart_printf("\treading BMT: log_lbn=%d=>vbn=%d", log_lbn, Read_log_bmt(bank, log_lbn));
-#if OPTION_DEBUG_LOG
-    if (logLbn < LOG_BLK_PER_BANK)
-        return Read_log_bmt(bank, logLbn);
-    return INVALID;
-#else
-    return Read_log_bmt(bank, logLbn);
-#endif
-}
-
 static void sanity_check ()
 {
     if (DRAM_BYTES_OTHER > DRAM_SIZE)
@@ -109,9 +81,8 @@ static void format (void)
         vblock = 0;
         nand_block_erase_sync (bank, vblock);
         g_bsp_isr_flag[bank] = INVALID;
-        uart_print("Setting Log BMT...");
         uart_print("Initializing bank "); uart_print_int(bank); uart_print("\r\n");
-        uart_print("\tReal bank "); uart_print_int(REAL_BANK(bank)); uart_print("\r\n");
+        uart_print("Real bank "); uart_print_int(REAL_BANK(bank)); uart_print("\r\n");
         for (lbn = 0; lbn < LOG_BLK_PER_BANK;)
         {
             vblock++;
@@ -119,24 +90,23 @@ static void format (void)
             nand_block_erase_sync (bank, vblock);
             if (g_bsp_isr_flag[bank] != INVALID)
             {
+                // vblock is invalid, so we reset the flag and skip it
                 g_bsp_isr_flag[bank] = INVALID;
                 continue;
             }
-            uart_print("\tLog block "); uart_print_int(lbn); uart_print(" assigned to vbn "); uart_print_int(vblock); uart_print("\r\n");
-            set_log_vbn(bank, lbn, vblock);
+            uart_print("using vblock "); uart_print_int(vblock); uart_print("\r\n");
+            
+            // TODO: here you should insert vblock in a data structure that allows you to remember which physical blocks you are using.
+            // It is possible to use a mapping between logical block numbers and physical block numbers, or use the physical block numbers
+            // directly in the lba mapping table.
+            
             lbn++;
         }
-        // set remained log blocks as `invalid'
-        UINT32 invalidLogBlks=0;
-        while (lbn < LOG_BLK_PER_BANK)
+        if (lbn < LOG_BLK_PER_BANK)
         {
-            write_dram_16 (LOG_BMT_ADDR + ((bank * LOG_BLK_PER_BANK + lbn) * sizeof (UINT16)), (UINT16) - 1);
-            lbn++;
-            invalidLogBlks++;
+            uart_print_level_1("ERROR! There are not enough usable blocks!\r\n");
+            while (1);
         }
-        uart_print("there are ");
-        uart_print_int(invalidLogBlks);
-        uart_print("invalid log blocks...done\r\n");
     }
     //----------------------------------------
     // initialize SRAM metadata
@@ -234,10 +204,20 @@ void ftl_trim (UINT32 const lba, UINT32 const num_sectors)
 void ftl_read (UINT32 const lba, UINT32 const num_sectors)
 {
     uart_print_level_1("ftl_read\r\n");
+    
+    // Examples:
+    
+    // 1) use flash-to-SATA-buffer direct operation
+    //nand_page_read_to_host(0, 5, 22);
 
-    g_ftl_read_buf_id = (g_ftl_read_buf_id + 1) % NUM_RD_BUFFERS;
-    SETREG (BM_STACK_RDSET, g_ftl_read_buf_id);    // change bm_read_limit
-    SETREG (BM_STACK_RESET, 0x02);    // change bm_read_limit
+    // 2) Retrieve page in DRAM/or flash and manually copy it to SATA buffer
+    // a) Retrieve page
+    // b) Copy to SATA buffer
+    //
+    // Manage FTL SATA read buffer pointer:
+    //    g_ftl_read_buf_id = (g_ftl_read_buf_id + 1) % NUM_RD_BUFFERS;
+    //    SETREG (BM_STACK_RDSET, g_ftl_read_buf_id);
+    //    SETREG (BM_STACK_RESET, 0x02);
 }
 
 
@@ -245,8 +225,16 @@ void ftl_read (UINT32 const lba, UINT32 const num_sectors)
 void ftl_write (UINT32 const lba, UINT32 const nSects)
 {
     uart_print_level_1("ftl_write\r\n");
+    
+    // Examples:
+    
+    // 1) use flash-to-SATA-buffer direct operation
+    //nand_page_program_from_host(0, 5, 22);
 
-    g_ftl_write_buf_id = (g_ftl_write_buf_id + 1) % NUM_WR_BUFFERS;
-    SETREG (BM_STACK_WRSET, g_ftl_write_buf_id);
-    SETREG (BM_STACK_RESET, 0x01);
+    // 2) Manually copy data from SATA buffer to custom DRAM buffer, or flash page
+    //
+    // Manage FTL SATA write buffer pointer:
+    //    g_ftl_write_buf_id = (g_ftl_write_buf_id + 1) % NUM_WR_BUFFERS;
+    //    SETREG (BM_STACK_WRSET, g_ftl_write_buf_id);
+    //    SETREG (BM_STACK_RESET, 0x01);
 }
