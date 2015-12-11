@@ -40,9 +40,9 @@ void initDRAM()
 #define OPEN_PERM_FLAGS ()
 #endif
 
-void initFlash()
+void initFlash(char * fileName)
 {
-    flashFD = open("/Users/fabio/workspace/flashStorageFile", OPEN_FLAGS, OPEN_PERM_FLAGS);
+    flashFD = open(fileName, OPEN_FLAGS, OPEN_PERM_FLAGS);
     assert(flashFD > 0);
 }
 

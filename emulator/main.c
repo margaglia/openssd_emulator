@@ -50,19 +50,19 @@ void randomTest(uint64_t maxLba)
 int main(int argc, const char *argv[])
 {
 
-    if (argc != 2)
+    if (argc != 3)
     {
         printf("Syntax error: ");
         for (int i =0; i< argc; ++i) { printf("%s ", argv[i]); }
         printf("\n");
-        printf("Correct call: %s <logFile>\n", argv[0]);
+        printf("Correct call: %s <fileToEmulateFlash> <logFile>\n", argv[0]);
         exit(0);
     }
 
-    logFile = fopen(argv[1], "w");
+    logFile = fopen(argv[2], "w");
 
     initDRAM();
-    initFlash();
+    initFlash(argv[1]);
 
     ftl_open();
 
