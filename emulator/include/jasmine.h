@@ -28,7 +28,7 @@
 #define OPTION_NO_DRAM_ABSORB           1    // 1 = no DRAM absorb, 0 = enable DRAM absorb
 #define OPTION_ENABLE_ASSERT            0    // 1 = enable ASSERT() for debugging, 0 = disable ASSERT()
 #define OPTION_FTL_TEST                 0    // 1 = FTL test without SATA communication, 0 = normal
-#define OPTION_UART_DEBUG               0   // 1 = enable UART message output, 0 = disable
+#define OPTION_UART_DEBUG               1   // 1 = enable UART message output, 0 = disable
 #define OPTION_HYBRID                   0  // 0 - Page Mapped, 1 - Hybrid
 #define OPTION_SLOW_SATA                0    // 1 = SATA 1.5Gbps, 0 = 3Gbps
 #define OPTION_SUPPORT_NCQ              0    // 1 = support SATA NCQ (=FPDMA) for AHCI hosts, 0 = support only DMA mode
