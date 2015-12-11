@@ -263,7 +263,7 @@ void nand_page_read_to_host(UINT32 const bank, UINT32 const vblock, UINT32 const
     uart_print_level_1_int(SECTORS_PER_PAGE);
     uart_print_level_1("\r\n");
 #endif
-    nand_page_program(bank, vblock, page_num, RD_BUF_PTR(g_ftl_read_buf_id), 0);
+    nand_page_read(bank, vblock, page_num, RD_BUF_PTR(g_ftl_read_buf_id));
     g_ftl_read_buf_id = (g_ftl_read_buf_id + 1) % NUM_RD_BUFFERS;
 }
 
